@@ -14,15 +14,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ===== CONFIG =====
-// Replace with your Firebase config (same project as main website)
+// 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBFMSN8Qp4HIfeOlWgLEkUX6knoZ1bpH8M",
+  authDomain: "studio-3601609342-b4526.firebaseapp.com",
+  projectId: "studio-3601609342-b4526",
+  storageBucket: "studio-3601609342-b4526.firebasestorage.app",
+  messagingSenderId: "921664982987",
+  appId: "1:921664982987:web:a2c52b3cec1506aec4f04e"
 };
+
 
 // ===== INIT FIREBASE =====
 let app, auth, db;
