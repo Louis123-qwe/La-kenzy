@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LA'KENZY — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-ring"><span>LK</span></div>
+        <div>
+          <h1>LA'KENZY</h1>
+          <p>Admin Dashboard</p>
+        </div>
+      </div>
+      <div class="login-divider"></div>
+      <form id="loginForm" novalidate>
+        <div class="field-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="admin@lakenzy.com" required/>
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <div class="pass-wrap">
+            <input type="password" id="loginPass" placeholder="••••••••" required/>
+            <button type="button" id="togglePass" class="eye-btn">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="login-err" id="loginErr"></p>
+        <button type="submit" class="btn-gold btn-full" id="loginBtn">Sign In</button>
+      </form>
+      <p class="login-back"><a href="index.html">← Back to Website</a></p>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD SHELL ===== -->
+  <div id="dashboard" class="hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-ring sm"><span>LK</span></div>
+        <div>
+          <span class="s-name">LA'KENZY</span>
+          <span class="s-role">Admin Panel</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="overview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" data-page="appointments">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Appointments
+          <span class="nav-badge" id="apptBadge">0</span>
+        </button>
+        <button class="nav-item" data-page="products">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Products
+        </button>
+        <button class="nav-item" data-page="services">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 6v6l4 2"/></svg>
+          Services
+        </button>
+        <button class="nav-item" data-page="gallery">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Gallery
+        </button>
+        <button class="nav-item" data-page="testimonials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Testimonials
+        </button>
+        <button class="nav-item" data-page="orders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Orders
+        </button>
+        <button class="nav-item" data-page="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-wrap">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+        <div class="topbar-right">
+          <div class="topbar-time" id="topbarTime"></div>
+          <div class="admin-avatar" id="adminAvatar">A</div>
+        </div>
+      </header>
+
+      <!-- Page Container -->
+      <main class="page-container">
+
+        <!-- ======= OVERVIEW PAGE ======= -->
+        <section class="page active" id="page-overview">
+          <div class="page-header">
+            <div>
+              <h2>Good <span id="greetTime">Morning</span>, Admin ✦</h2>
+              <p>Here's what's happening at LA'KENZY today.</p>
+            </div>
+            <a href="index.html" target="_blank" class="btn-outline-sm">View Website ↗</a>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon appt">📅</div>
+              <div class="stat-info">
+                <span class="stat-val" id="statAppts">0</span>
+                <span class="stat-lbl">Total Appointments</span>
+                <span class="stat-sub" id="statApptToday">0 today</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon prod">🛍️</div>
+              <div class="stat-info">
+                <span class="stat-val" id="statProducts">0</span>
+                <span class="stat-lbl">Products Listed</span>
+                <span class="stat-sub">in marketplace</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon rev">💰</div>
+              <div class="stat-info">
+                <span class="stat-val" id="statRevenue">₦0</span>
+                <span class="stat-lbl">Est. Revenue</span>
+                <span class="stat-sub">this month</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon msg">💬</div>
+              <div class="stat-info">
+                <span class="stat-val" id="statMessages">0</span>
+                <span class="stat-lbl">Messages</span>
+                <span class="stat-sub">unread</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Recent Appointments</h3>
+                <button class="panel-link" data-page="appointments">View all →</button>
+              </div>
+              <div id="recentAppts"><p class="empty-state">No appointments yet.</p></div>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><h3>Quick Actions</h3></div>
+              <div class="quick-actions">
+                <button class="qa-btn" data-page="appointments"><span>📅</span>New Appointment</button>
+                <button class="qa-btn" data-page="products"><span>➕</span>Add Product</button>
+                <button class="qa-btn" data-page="gallery"><span>🖼️</span>Upload Gallery</button>
+                <button class="qa-btn" data-page="testimonials"><span>⭐</span>Add Testimonial</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======= APPOINTMENTS PAGE ======= -->
+        <section class="page" id="page-appointments">
+          <div class="page-header">
+            <div>
+              <h2>Appointments</h2>
+              <p>Manage all client bookings and sessions.</p>
+            </div>
+            <button class="btn-gold-sm" id="newApptBtn">+ New Appointment</button>
+          </div>
+
+          <div class="table-controls">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="apptSearch" placeholder="Search by name, service, date..."/>
+            </div>
+            <div class="filter-row">
+              <select id="apptStatusFilter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <select id="apptServiceFilter">
+                <option value="">All Services</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table" id="apptTable">
+              <thead>
+                <tr>
+                  <th>Ref</th>
+                  <th>Client</th>
+                  <th>Service</th>
+                  <th>Date & Time</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="apptTableBody"></tbody>
+            </table>
+            <p class="empty-state" id="apptEmpty">No appointments found.</p>
+          </div>
+        </section>
+
+        <!-- ======= PRODUCTS PAGE ======= -->
+        <section class="page" id="page-products">
+          <div class="page-header">
+            <div>
+              <h2>Products</h2>
+              <p>Manage your skincare marketplace inventory.</p>
+            </div>
+            <button class="btn-gold-sm" id="newProductBtn">+ Add Product</button>
+          </div>
+
+          <div class="table-controls">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="prodSearch" placeholder="Search products..."/>
+            </div>
+          </div>
+
+          <div class="products-admin-grid" id="productsAdminGrid"></div>
+        </section>
+
+        <!-- ======= SERVICES PAGE ======= -->
+        <section class="page" id="page-services">
+          <div class="page-header">
+            <div>
+              <h2>Services</h2>
+              <p>Manage treatments, prices, and availability.</p>
+            </div>
+            <button class="btn-gold-sm" id="newServiceBtn">+ Add Service</button>
+          </div>
+          <div class="services-admin-grid" id="servicesAdminGrid"></div>
+        </section>
+
+        <!-- ======= GALLERY PAGE ======= -->
+        <section class="page" id="page-gallery">
+          <div class="page-header">
+            <div>
+              <h2>Gallery</h2>
+              <p>Manage before & after photos and treatments gallery.</p>
+            </div>
+            <button class="btn-gold-sm" id="newGalleryBtn">+ Upload Image</button>
+          </div>
+          <div class="gallery-admin-grid" id="galleryAdminGrid"></div>
+        </section>
+
+        <!-- ======= TESTIMONIALS PAGE ======= -->
+        <section class="page" id="page-testimonials">
+          <div class="page-header">
+            <div>
+              <h2>Testimonials</h2>
+              <p>Manage client reviews displayed on the website.</p>
+            </div>
+            <button class="btn-gold-sm" id="newTestiBtn">+ Add Testimonial</button>
+          </div>
+          <div class="testi-admin-grid" id="testiAdminGrid"></div>
+        </section>
+
+        <!-- ======= ORDERS PAGE ======= -->
+        <section class="page" id="page-orders">
+          <div class="page-header">
+            <div>
+              <h2>Orders</h2>
+              <p>Track WhatsApp marketplace orders and fulfilment.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+            <p class="empty-state" id="ordersEmpty">No orders recorded yet. Orders come in via WhatsApp.</p>
+          </div>
+        </section>
+
+        <!-- ======= SETTINGS PAGE ======= -->
+        <section class="page" id="page-settings">
+          <div class="page-header">
+            <div><h2>Settings</h2><p>Manage business info and admin account.</p></div>
+          </div>
+          <div class="settings-grid">
+            <div class="settings-panel panel">
+              <div class="panel-header"><h3>Business Information</h3></div>
+              <form id="bizForm" class="settings-form">
+                <div class="field-group"><label>Business Name</label><input type="text" value="LA'KENZY Skincare & Aesthetic Spa"/></div>
+                <div class="field-group"><label>Phone (Primary)</label><input type="tel" value="08039239749"/></div>
+                <div class="field-group"><label>Phone (Secondary)</label><input type="tel" value="09053563695"/></div>
+                <div class="field-group"><label>Email</label><input type="email" placeholder="info@lakenzy.com"/></div>
+                <div class="field-group"><label>Address</label><input type="text" value="Omu-Arogun Bus-Stop, Lagos"/></div>
+                <div class="field-group"><label>Instagram Handle</label><input type="text" value="@lakenzyorganics"/></div>
+                <div class="field-group"><label>WhatsApp Number</label><input type="tel" value="2348039239749"/></div>
+                <button type="submit" class="btn-gold-sm">Save Changes</button>
+              </form>
+            </div>
+            <div class="settings-panel panel">
+              <div class="panel-header"><h3>Admin Account</h3></div>
+              <form id="adminForm" class="settings-form">
+                <div class="field-group"><label>Display Name</label><input type="text" placeholder="Admin Name"/></div>
+                <div class="field-group"><label>Email</label><input type="email" placeholder="admin@lakenzy.com"/></div>
+                <div class="field-group"><label>New Password</label><input type="password" placeholder="Leave blank to keep current"/></div>
+                <div class="field-group"><label>Confirm Password</label><input type="password" placeholder="Repeat new password"/></div>
+                <button type="submit" class="btn-gold-sm">Update Account</button>
+              </form>
+              <div class="settings-divider"></div>
+              <div class="panel-header"><h3>Booking Hours</h3></div>
+              <form class="settings-form">
+                <div class="hours-row">
+                  <label class="toggle-label">
+                    <input type="checkbox" checked/> Monday
+                    <span>09:00 AM – 06:00 PM</span>
+                  </label>
+                  <label class="toggle-label">
+                    <input type="checkbox" checked/> Tuesday
+                    <span>09:00 AM – 06:00 PM</span>
+                  </label>
+                  <label class="toggle-label">
+                    <input type="checkbox" checked/> Wednesday
+                    <span>09:00 AM – 06:00 PM</span>
+                  </label>
+                  <label class="toggle-label">
+                    <input type="checkbox" checked/> Thursday
+                    <span>09:00 AM – 06:00 PM</span>
+                  </label>
+                  <label class="toggle-label">
+                    <input type="checkbox" checked/> Friday
+                    <span>09:00 AM – 06:00 PM</span>
+                  </label>
+                  <label class="toggle-label">
+                    <input type="checkbox" checked/> Saturday
+                    <span>09:00 AM – 04:00 PM</span>
+                  </label>
+                  <label class="toggle-label">
+                    <input type="checkbox"/> Sunday
+                    <span>Closed</span>
+                  </label>
+                </div>
+                <button type="submit" class="btn-gold-sm" style="margin-top:1rem">Save Hours</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Appointment Modal -->
+  <div class="modal-backdrop" id="apptModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="apptModalTitle">New Appointment</h3>
+        <button class="modal-close" data-modal="apptModal">✕</button>
+      </div>
+      <form id="apptForm" class="modal-form">
+        <input type="hidden" id="apptId"/>
+        <div class="form-row-2">
+          <div class="field-group"><label>Full Name *</label><input type="text" id="af_name" required/></div>
+          <div class="field-group"><label>Phone *</label><input type="tel" id="af_phone" required/></div>
+        </div>
+        <div class="form-row-2">
+          <div class="field-group"><label>Email</label><input type="email" id="af_email"/></div>
+          <div class="field-group">
+            <label>Service *</label>
+            <select id="af_service" required>
+              <option value="">— Select —</option>
+              <option>Skin Analysis</option><option>Skin Treatment</option>
+              <option>Full Body Massage</option><option>Facials</option>
+              <option>Chemical Peels</option><option>Mesotherapy</option>
+              <option>IV Therapy</option><option>Teeth Whitening</option>
+              <option>Pedicure & Manicure</option><option>Waxing</option>
+              <option>Body Scrub</option><option>Body Steaming</option>
+              <option>Vagina Treatment</option><option>Lash Extension</option>
+              <option>Microblading</option><option>Stretch Mark Treatment</option>
+              <option>Skintag Removal</option><option>Consultation</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="field-group"><label>Date *</label><input type="date" id="af_date" required/></div>
+          <div class="field-group">
+            <label>Time *</label>
+            <select id="af_time" required>
+              <option value="">— Select —</option>
+              <option>09:00 AM</option><option>10:00 AM</option><option>11:00 AM</option>
+              <option>12:00 PM</option><option>01:00 PM</option><option>02:00 PM</option>
+              <option>03:00 PM</option><option>04:00 PM</option><option>05:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="field-group">
+            <label>Status</label>
+            <select id="af_status">
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="field-group"><label>Reference</label><input type="text" id="af_ref" readonly placeholder="Auto-generated"/></div>
+        </div>
+        <div class="field-group"><label>Notes</label><textarea id="af_notes" rows="2"></textarea></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-outline-sm" data-modal="apptModal">Cancel</button>
+          <button type="submit" class="btn-gold-sm" id="apptSaveBtn">Save Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="productModalTitle">Add Product</h3>
+        <button class="modal-close" data-modal="productModal">✕</button>
+      </div>
+      <form id="productForm" class="modal-form">
+        <input type="hidden" id="pf_id"/>
+        <div class="form-row-2">
+          <div class="field-group"><label>Product Name *</label><input type="text" id="pf_name" required/></div>
+          <div class="field-group">
+            <label>Category *</label>
+            <select id="pf_category" required>
+              <option value="">— Select —</option>
+              <option>Serums</option><option>Moisturisers</option>
+              <option>Toners</option><option>SPF</option>
+              <option>Cleansers</option><option>Treatments</option>
+              <option>Body Care</option><option>Tools</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="field-group"><label>Price (₦) *</label><input type="number" id="pf_price" min="0" required/></div>
+          <div class="field-group"><label>Stock Qty</label><input type="number" id="pf_stock" min="0" value="10"/></div>
+        </div>
+        <div class="field-group"><label>Description</label><textarea id="pf_desc" rows="2"></textarea></div>
+        <div class="field-group">
+          <label>Emoji Icon</label>
+          <input type="text" id="pf_emoji" placeholder="e.g. ✨" maxlength="4"/>
+        </div>
+        <div class="field-group">
+          <label>Cloudinary Image URL</label>
+          <input type="url" id="pf_img" placeholder="https://res.cloudinary.com/..."/>
+        </div>
+        <div class="field-group">
+          <label class="toggle-label"><input type="checkbox" id="pf_active" checked/> Active (show on website)</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-outline-sm" data-modal="productModal">Cancel</button>
+          <button type="submit" class="btn-gold-sm">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Service Modal -->
+  <div class="modal-backdrop" id="serviceModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="serviceModalTitle">Edit Service</h3>
+        <button class="modal-close" data-modal="serviceModal">✕</button>
+      </div>
+      <form id="serviceForm" class="modal-form">
+        <input type="hidden" id="sf_id"/>
+        <div class="form-row-2">
+          <div class="field-group"><label>Service Name *</label><input type="text" id="sf_name" required/></div>
+          <div class="field-group"><label>Price (from) *</label><input type="text" id="sf_price" placeholder="e.g. ₦15,000" required/></div>
+        </div>
+        <div class="field-group"><label>Description *</label><textarea id="sf_desc" rows="3" required></textarea></div>
+        <div class="form-row-2">
+          <div class="field-group"><label>Emoji Icon</label><input type="text" id="sf_emoji" maxlength="4"/></div>
+          <div class="field-group"><label>Duration</label><input type="text" id="sf_duration" placeholder="e.g. 60 mins"/></div>
+        </div>
+        <div class="field-group">
+          <label class="toggle-label"><input type="checkbox" id="sf_active" checked/> Available for Booking</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-outline-sm" data-modal="serviceModal">Cancel</button>
+          <button type="submit" class="btn-gold-sm">Save Service</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Gallery Modal -->
+  <div class="modal-backdrop" id="galleryModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>Add Gallery Image</h3>
+        <button class="modal-close" data-modal="galleryModal">✕</button>
+      </div>
+      <form id="galleryForm" class="modal-form">
+        <input type="hidden" id="gf_id"/>
+        <div class="field-group"><label>Label / Title *</label><input type="text" id="gf_label" required placeholder="e.g. Before & After — Skin Treatment"/></div>
+        <div class="field-group"><label>Tag / Category</label><input type="text" id="gf_tag" placeholder="e.g. Facials"/></div>
+        <div class="field-group"><label>Cloudinary Image URL *</label><input type="url" id="gf_url" required placeholder="https://res.cloudinary.com/..."/></div>
+        <div class="field-group">
+          <label>Layout</label>
+          <select id="gf_size">
+            <option value="normal">Normal</option>
+            <option value="tall">Tall (2 rows)</option>
+            <option value="wide">Wide (2 cols)</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-outline-sm" data-modal="galleryModal">Cancel</button>
+          <button type="submit" class="btn-gold-sm">Save Image</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Testimonial Modal -->
+  <div class="modal-backdrop" id="testiModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="testiModalTitle">Add Testimonial</h3>
+        <button class="modal-close" data-modal="testiModal">✕</button>
+      </div>
+      <form id="testiForm" class="modal-form">
+        <input type="hidden" id="tf_id"/>
+        <div class="form-row-2">
+          <div class="field-group"><label>Client Name *</label><input type="text" id="tf_name" required/></div>
+          <div class="field-group"><label>Location</label><input type="text" id="tf_loc" placeholder="e.g. Lagos Island"/></div>
+        </div>
+        <div class="field-group">
+          <label>Star Rating</label>
+          <div class="star-picker" id="starPicker">
+            <button type="button" data-star="1">★</button>
+            <button type="button" data-star="2">★</button>
+            <button type="button" data-star="3">★</button>
+            <button type="button" data-star="4">★</button>
+            <button type="button" data-star="5">★</button>
+          </div>
+          <input type="hidden" id="tf_stars" value="5"/>
+        </div>
+        <div class="field-group"><label>Review Text *</label><textarea id="tf_text" rows="4" required></textarea></div>
+        <div class="field-group"><label>Avatar Image URL (optional)</label><input type="url" id="tf_avatar" placeholder="https://..."/></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-outline-sm" data-modal="testiModal">Cancel</button>
+          <button type="submit" class="btn-gold-sm">Save Testimonial</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal-box sm">
+      <div class="modal-head">
+        <h3>Confirm Delete</h3>
+        <button class="modal-close" data-modal="confirmModal">✕</button>
+      </div>
+      <p style="color:var(--muted);font-size:0.88rem;margin:1rem 0 1.5rem">This action cannot be undone. Are you sure you want to delete this item?</p>
+      <div class="modal-actions">
+        <button class="btn-outline-sm" data-modal="confirmModal">Cancel</button>
+        <button class="btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="admin-toast" id="adminToast"></div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
