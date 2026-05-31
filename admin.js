@@ -18,14 +18,15 @@ import {
 
 // ── FIREBASE CONFIG ────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "AIzaSyBFMSN8Qp4HIfeOlWgLEkUX6knoZ1bpH8M",
-  authDomain: "studio-3601609342-b4526.firebaseapp.com",
-  projectId: "studio-3601609342-b4526",
-  storageBucket: "studio-3601609342-b4526.firebasestorage.app",
-  messagingSenderId: "921664982987",
-  appId: "1:921664982987:web:a2c52b3cec1506aec4f04e"
+  apiKey: "AIzaSyDzqvg6xz-acaxKrKEQ7Ht5M9mzcrGAIhw",
+  authDomain: "asset-stack.firebaseapp.com",
+  databaseURL: "https://asset-stack-default-rtdb.firebaseio.com",
+  projectId: "asset-stack",
+  storageBucket: "asset-stack.firebasestorage.app",
+  messagingSenderId: "324975878662",
+  appId: "1:324975878662:web:91f270faa2d57151ad9987",
+  measurementId: "G-RTYN401K15"
 };
-
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 const auth = getAuth(app);
