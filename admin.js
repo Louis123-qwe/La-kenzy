@@ -8,7 +8,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs,
   updateDoc, deleteDoc, onSnapshot, query, orderBy, where,
-  serverTimestamp, writeBatch, getCountFromServer, Timestamp
+  serverTimestamp, writeBatch, getCountFromServer, Timestamp, increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut,
@@ -27,6 +27,7 @@ const firebaseConfig = {
   appId: "1:324975878662:web:91f270faa2d57151ad9987",
   measurementId: "G-RTYN401K15"
 };
+
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 const auth = getAuth(app);
@@ -120,6 +121,7 @@ function friendlyAuthError(code) {
   return map[code] || 'Authentication failed. Please try again.';
 }
 
+let appInitialised = false;
 onAuthStateChanged(auth, user => {
   if (user) {
     loginScreen.classList.add('hidden');
@@ -129,8 +131,13 @@ onAuthStateChanged(auth, user => {
     if (settingsEmail) settingsEmail.textContent = user.email;
     loginBtn.disabled = false;
     loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-    initApp();
+    // Guard: only initialise once per page load to prevent duplicate listeners
+    if (!appInitialised) {
+      appInitialised = true;
+      initApp();
+    }
   } else {
+    appInitialised = false;
     loginScreen.classList.remove('hidden');
     adminWrapper.classList.add('hidden');
   }
@@ -163,11 +170,11 @@ function showSection(id) {
   if (sectionLoaders[id]) sectionLoaders[id]();
 
   // close mobile sidebar
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-    sidebar.classList.remove('mobile-open');
-    if (overlay) overlay.classList.remove('active');
+  const _sb = document.getElementById('sidebar');
+  const _ov = document.getElementById('sidebarOverlay');
+  if (window.innerWidth <= 768 && _sb && _sb.classList.contains('mobile-open')) {
+    _sb.classList.remove('mobile-open');
+    if (_ov) _ov.classList.remove('active');
   }
 }
 
@@ -178,26 +185,26 @@ document.querySelectorAll('.nav-item[data-section]').forEach(item => {
   item.addEventListener('click', () => showSection(item.dataset.section));
 });
 
-// Sidebar toggle
+// Sidebar toggle — use getElementById each time to avoid stale const reference
 const sidebarToggleBtn = document.getElementById('sidebarToggle');
-const sidebar = document.getElementById('sidebar');
 sidebarToggleBtn.addEventListener('click', () => {
+  const sb = document.getElementById('sidebar');
   if (window.innerWidth <= 768) {
-    sidebar.classList.toggle('mobile-open');
+    sb.classList.toggle('mobile-open');
     let overlay = document.getElementById('sidebarOverlay');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'sidebarOverlay';
       overlay.className = 'sidebar-overlay';
       overlay.addEventListener('click', () => {
-        sidebar.classList.remove('mobile-open');
+        sb.classList.remove('mobile-open');
         overlay.classList.remove('active');
       });
       document.body.appendChild(overlay);
     }
-    overlay.classList.toggle('active', sidebar.classList.contains('mobile-open'));
+    overlay.classList.toggle('active', sb.classList.contains('mobile-open'));
   } else {
-    sidebar.classList.toggle('collapsed');
+    sb.classList.toggle('collapsed');
   }
 });
 
@@ -486,10 +493,15 @@ function buildIconPicker(wrapId, inputId, triggerBtnId) {
     dd.style.display = dropOpen ? 'block' : 'none';
   });
 
-  document.addEventListener('click', e => {
+  // Use a named handler stored on the wrap element to avoid stacking document listeners
+  if (wrap._iconPickerOutsideHandler) {
+    document.removeEventListener('click', wrap._iconPickerOutsideHandler);
+  }
+  wrap._iconPickerOutsideHandler = e => {
     const dd = document.getElementById(wrapId + '_dropdown');
     if (dd && !wrap.contains(e.target)) { dd.style.display = 'none'; dropOpen = false; }
-  });
+  };
+  document.addEventListener('click', wrap._iconPickerOutsideHandler);
 
   function renderIconGrid(grid, filter) {
     const filtered = filter ? ICONS.filter(ic => ic.label.toLowerCase().includes(filter) || ic.cls.includes(filter)) : ICONS;
@@ -551,15 +563,19 @@ function loadDashboard() {
   });
   dashUnsubscribes.push(u4);
 
-  // WhatsApp clicks
-  const u5 = onSnapshot(query(collection(db, 'analytics'), where('type', '==', 'whatsappClick')), snap => {
-    document.getElementById('statWaClicks').textContent = snap.size;
+  // WhatsApp clicks — sum whatsappClicks from product docs (source of truth)
+  const u5 = onSnapshot(collection(db, 'products'), snap => {
+    let waTotal = 0;
+    snap.forEach(d => waTotal += (d.data().whatsappClicks || 0));
+    document.getElementById('statWaClicks').textContent = waTotal;
   });
   dashUnsubscribes.push(u5);
 
-  // Product clicks
-  const u6 = onSnapshot(query(collection(db, 'analytics'), where('type', '==', 'productClick')), snap => {
-    document.getElementById('statProdClicks').textContent = snap.size;
+  // Product clicks — sum clicks from product docs
+  const u6 = onSnapshot(collection(db, 'products'), snap => {
+    let clickTotal = 0;
+    snap.forEach(d => clickTotal += (d.data().clicks || 0));
+    document.getElementById('statProdClicks').textContent = clickTotal;
   });
   dashUnsubscribes.push(u6);
 
@@ -734,10 +750,13 @@ window.openProductModal = function(productId) {
       </div>
       <div class="form-group">
         <label>Category *</label>
-        <input type="text" id="pCategory" value="${p?.category || ''}" placeholder="e.g. Serums" list="catSuggestions" />
-        <datalist id="catSuggestions">
-          ${[...new Set(allProducts.map(x => x.category).filter(Boolean))].map(c => `<option value="${c}">`).join('')}
-        </datalist>
+        <select id="pCategorySelect" onchange="onCategorySelectChange()" style="margin-bottom:0.4rem;">
+          <option value="">-- Select or type below --</option>
+          ${[...new Set(allProducts.map(x => x.category).filter(Boolean))].map(c => `<option value="${c}" ${(p?.category || '') === c ? 'selected' : ''}>${c}</option>`).join('')}
+          <option value="__new__">+ Add new category…</option>
+        </select>
+        <input type="text" id="pCategory" value="${p?.category || ''}" placeholder="e.g. Serums" style="margin-top:0.3rem;" />
+        <p class="hint-text">Select an existing category above, or type a new one directly.</p>
       </div>
     </div>
     <div class="form-row">
@@ -857,6 +876,20 @@ window.deleteProduct = async function(id) {
       await deleteDoc(doc(db, 'products', id));
       showToast('Product deleted', 'success');
     } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  }
+};
+
+// Category combo handler — when user picks from the select, populate the text input
+window.onCategorySelectChange = function() {
+  const sel   = document.getElementById('pCategorySelect');
+  const input = document.getElementById('pCategory');
+  if (!sel || !input) return;
+  if (sel.value === '__new__') {
+    input.value = '';
+    input.focus();
+    sel.value = '';
+  } else if (sel.value) {
+    input.value = sel.value;
   }
 };
 
@@ -1081,13 +1114,33 @@ window.updateApptStatus = async function(id, status) {
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
 };
 
+// Normalise Nigerian phone numbers → international format for wa.me
+function normalisePhone(raw) {
+  if (!raw) return '';
+  // Strip all non-digit characters
+  let digits = String(raw).replace(/\D/g, '');
+  // Already has country code (234xxxxxxxxxx)
+  if (digits.startsWith('234') && digits.length >= 13) return digits;
+  // Starts with 0 (08x, 07x, 09x) — remove leading 0 and prepend 234
+  if (digits.startsWith('0') && digits.length === 11) return '234' + digits.slice(1);
+  // Starts with +234 raw (stripped to 234...)
+  if (digits.startsWith('234')) return digits;
+  // Fallback: prepend 234
+  return '234' + digits;
+}
+
 window.sendApptWhatsApp = function(id) {
   const a = allAppointments.find(x => x.id === id);
   if (!a) return;
+  const phone = normalisePhone(a.phone);
+  if (!phone) {
+    showToast('No phone number on this appointment', 'warning');
+    return;
+  }
   const msg = encodeURIComponent(
     `Hello ${a.name}, this is LA'KENZY confirming your appointment for ${a.service} on ${a.date} at ${a.time}. Your booking reference is ${a.ref}. We look forward to seeing you! ✦`
   );
-  window.open(`https://wa.me/2348039239749?text=${msg}`, '_blank');
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 };
 
 window.deleteAppointment = async function(id) {
@@ -1283,20 +1336,23 @@ let analyticsFrom = null;
 let analyticsTo   = null;
 
 function loadAnalytics() {
+  // Ensure appointments are loaded (idempotent — safe to call multiple times)
+  loadAppointments();
   renderAnalyticsTables();
   loadAppointmentTrends();
 }
 
 function renderAnalyticsTables() {
-  // Summary cards
+  // Summary cards — derived from product docs (clicks/whatsappClicks stored per product)
   const totalClicks   = allProducts.reduce((s, p) => s + (p.clicks || 0), 0);
   const totalWa       = allProducts.reduce((s, p) => s + (p.whatsappClicks || 0), 0);
   const totalAppts    = allAppointments.length;
+  // Conversion: % of product clicks that became WA enquiries
   const conversion    = totalClicks > 0 ? ((totalWa / totalClicks) * 100).toFixed(1) + '%' : '0%';
 
-  document.getElementById('aTotalClicks').textContent  = totalClicks;
-  document.getElementById('aTotalWa').textContent      = totalWa;
-  document.getElementById('aTotalAppts').textContent   = totalAppts;
+  document.getElementById('aTotalClicks').textContent  = totalClicks.toLocaleString();
+  document.getElementById('aTotalWa').textContent      = totalWa.toLocaleString();
+  document.getElementById('aTotalAppts').textContent   = totalAppts.toLocaleString();
   document.getElementById('aConversion').textContent   = conversion;
 
   // Product performance table
@@ -1327,9 +1383,11 @@ function renderAnalyticsTables() {
     </tr>`;
   }
 
-  // Column sort headers
+  // Column sort headers — clone to remove any previously stacked listeners
   document.querySelectorAll('#analyticsProductTable th.sortable').forEach(th => {
-    th.addEventListener('click', function() {
+    const fresh = th.cloneNode(true);
+    th.parentNode.replaceChild(fresh, th);
+    fresh.addEventListener('click', function() {
       const col = this.dataset.col;
       if (analyticsSortCol === col) analyticsSortAsc = !analyticsSortAsc;
       else { analyticsSortCol = col; analyticsSortAsc = false; }
@@ -1716,10 +1774,24 @@ window.onSaleProductChange = function() {
 };
 
 window.deleteSale = async function(id) {
-  if (await confirmModal('Delete this sale record?')) {
+  if (await confirmModal('Delete this sale record? Stock will be restored.')) {
     try {
-      await deleteDoc(doc(db, 'salesRecords', id));
-      showToast('Sale deleted', 'success');
+      // Find the sale to get productId and quantity before deleting
+      const sale = allSales.find(s => s.id === id);
+      const batch = writeBatch(db);
+      batch.delete(doc(db, 'salesRecords', id));
+      // Restore stock and sold count on the product
+      if (sale && sale.productId) {
+        const product = allProducts.find(p => p.id === sale.productId);
+        if (product) {
+          batch.update(doc(db, 'products', sale.productId), {
+            stock: (product.stock || 0) + (sale.quantity || 0),
+            sold:  Math.max(0, (product.sold || 0) - (sale.quantity || 0))
+          });
+        }
+      }
+      await batch.commit();
+      showToast('Sale deleted and stock restored', 'success');
     } catch(e) { showToast('Error: ' + e.message, 'error'); }
   }
 };
